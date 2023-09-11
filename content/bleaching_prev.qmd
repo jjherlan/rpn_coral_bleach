@@ -1,0 +1,677 @@
+---
+title: "Bleaching Prevalence 2015"
+author: "jjh"
+editor: visual
+---
+
+```{r, include = FALSE}
+require(tidyverse)
+require(plyr)
+require(betareg)
+require(lmtest)
+require(glmmTMB)
+require(boot)
+require(emmeans)
+require(brms)
+require(mvtnorm)
+require(nlme)
+require(rstan)
+require(VGAM)
+require(Rmisc)
+require(car)
+require(multcomp)
+require(lme4)
+require(DHARMa)
+require(glmmTMB)
+require(sjPlot)
+require(lme4)
+```
+
+```{r, include = FALSE}
+rpn_bleach_prev <- read.csv('rpn_bleach_prev_2015.csv') %>%
+  as_tibble() %>%
+  mutate_at(vars(location, depth, transect, species), factor)
+```
+
+```{r}
+rpn_bleach_prev
+```
+
+```{r, include = FALSE}
+rpn_bleach_prev_sum <- rpn_bleach_prev %>%  
+  group_by(location, depth, transect, species, bleach) %>%
+  dplyr::summarise(total_count = n())
+```
+
+```{r, include = TRUE}
+rpn_bleach_prev_sum
+```
+
+<!-- ```{r} -->
+<!-- n <- c( -->
+<!--   14, 14, 14,     #3 -->
+<!--   4,  4,  4,      #6 -->
+<!--   18, 18, 18,     #9 -->
+<!--   2, 2,           #11 -->
+<!--   33, 33, 33,     #14 -->
+<!--   32, 32, 32,     #17 -->
+<!--   26, 26, 26,     #20 -->
+<!--   11, 11, 11,     #23 -->
+<!--   13, 13, 13,     #26 -->
+<!--   13, 13, 13,     #29 -->
+<!--   24, 24, 24,     #32 -->
+<!--   15, 15, 15,     #35 POCI -->
+<!--   11, 11,         #37 PLOB -->
+<!--   16, 16, 16,     #40 POCI -->
+<!--   16, 16, 16,     #43 PLOB -->
+<!--   56, 56, 56, 56, #47 POCI -->
+<!--   15, 15,         #49 PLOB -->
+<!--   59, 59, 59, 59, #53 POCI -->
+<!--   12, 12,         #55 PLOB -->
+<!--   74, 74, 74,     #58 POCI -->
+<!--   5, 5,           #60 PLOB -->
+<!--   60, 60, 60, 60  #64 POCI -->
+<!-- ) -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- rpn_bleach_prev.main <-  -->
+<!--   rpn_bleach_prev_sum %>% -->
+<!--   add_column(n = n) %>%   -->
+<!--   mutate( -->
+<!--   cover = total_count/total_points, -->
+<!--   failures = n - total_count -->
+<!--     ) %>% -->
+<!--   mutate(bleach_cond = case_when(bleach == 'H' ~ 'NB', -->
+<!--                                  bleach == 'P' ~ 'BL', -->
+<!--                                  bleach == 'PB' ~ 'BL', -->
+<!--                                  bleach == 'BL' ~ 'BL') -->
+<!--   ) -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- rpn_bleach_prev.main2 <-  -->
+<!--   as.data.frame(rpn_bleach_prev.main) %>% -->
+<!--   add_row(location = 'ana', depth = 'dp', transect = 'one', species = 'PLOB', bleach = 'BL', total_count = 0, n = 14, failures = 0, bleach_cond = 'BL', .after = 3) %>% -->
+<!--   add_row(location = 'ana', depth = 'dp', transect = 'one', species = 'POCI', bleach = 'H', total_count = 0, n = 4, failures = 0, bleach_cond = 'NB', .after = 4) %>% -->
+<!--   add_row(location = 'ana', depth = 'dp', transect = 'two', species = 'PLOB', bleach = 'BL', total_count = 0, n = 18, failures = 0, bleach_cond = 'BL', .after =11) %>% -->
+<!--   add_row(location = 'ana', depth = 'dp', transect = 'two', species = 'POCI', bleach = 'BL', total_count = 0, n = 2, failures = 0, bleach_cond = 'BL', .after = 12) %>% -->
+<!--   add_row(location = 'ana', depth = 'dp', transect = 'two', species = 'POCI', bleach = 'H', total_count = 0, n = 2, failures = 0, bleach_cond = 'NB', .after = 13) %>% -->
+<!--   add_row(location = 'ana', depth = 'sh', transect = 'one', species = 'PLOB', bleach = 'BL', total_count = 0, n = 33, failures = 0, bleach_cond = 'BL', .after = 19) %>% -->
+<!--   add_row(location = 'ana', depth = 'sh', transect = 'two', species = 'PLOB', bleach = 'BL', total_count = 0, n = 32, failures = 0, bleach_cond = 'BL', .after = 20) %>% -->
+<!--   add_row(location = 'man', depth = 'dp', transect = 'one', species = 'PLOB', bleach = 'BL', total_count = 0, n = 26, failures = 0, bleach_cond = 'BL', .after = 24) %>% -->
+<!--   add_row(location = 'man', depth = 'dp', transect = 'one', species = 'POCI', bleach = 'PB', total_count = 0, n = 11, failures = 0, bleach_cond = 'BL', .after = 31) %>% -->
+<!--   add_row(location = 'man', depth = 'dp', transect = 'two', species = 'PLOB', bleach = 'BL', total_count = 0, n = 13, failures = 0, bleach_cond = 'BL', .after = 32) %>% -->
+<!--   add_row(location = 'man', depth = 'dp', transect = 'two', species = 'POCI', bleach = 'BL', total_count = 0, n = 13, failures = 0, bleach_cond = 'BL', .after = 36) %>% -->
+<!--   add_row(location = 'man', depth = 'sh', transect = 'one', species = 'PLOB', bleach = 'BL', total_count = 0, n = 24, failures = 0, bleach_cond = 'BL', .after = 40) %>% -->
+<!--   add_row(location = 'man', depth = 'sh', transect = 'one', species = 'POCI', bleach = 'BL', total_count = 0, n = 15, failures = 0, bleach_cond = 'BL', .after = 47) %>% -->
+<!--   add_row(location = 'man', depth = 'sh', transect = 'two', species = 'PLOB', bleach = 'BL', total_count = 0, n = 11, failures = 0, bleach_cond = 'BL', .after = 48) %>% -->
+<!--   add_row(location = 'man', depth = 'sh', transect = 'two', species = 'PLOB', bleach = 'BL', total_count = 0, n = 11, failures = 0, bleach_cond = 'BL', .after = 49) %>% -->
+<!--   add_row(location = 'se', depth = 'dp', transect = 'two', species = 'PLOB', bleach = 'BL', total_count = 0, n = 16, failures = 0, bleach_cond = 'BL', .after = 56) -->
+<!-- ``` -->
+
+# ```{r}
+# rpn_bleach_prev.main2
+# ```
+
+```{r}
+write.csv(rpn_bleach_prev.main2, "rpn_bleach_prev.main2.csv")
+```
+
+```{r}
+rpn_bleach_prev.main <- 
+  read.csv("rpn_bleach_prev.main2.csv")
+```
+
+```{r}
+rpn_bleach_prev.main
+```
+
+```{r, include = FALSE}
+rpn_bleach_prev.sum <- rpn_bleach_prev.main %>%  
+#  filter(species == "PLOB") %>%
+  group_by(location, depth, transect, species, bleach_cond, n) %>%
+  dplyr::reframe(success_sum = sum(total_count), 
+                   failures = n - success_sum
+                   ) %>%
+  distinct()
+```
+
+```{r}
+rpn_bleach_prev.sum
+```
+
+```{r, include = FALSE}
+rpn_bleach_prev_PLOB <- rpn_bleach_prev.sum %>%  
+  filter(species == 'PLOB', bleach_cond == 'BL') %>%
+  group_by(location, depth, transect, bleach_cond, success_sum) 
+#%>%
+  #dplyr::summarise(total_count = n())
+```
+
+```{r}
+rpn_bleach_prev_PLOB
+```
+
+```{r, include = FALSE}
+rpn_bleach_prev_total <- rpn_bleach_prev %>%  
+  #filter(species == "PLOB") %>%
+  group_by(location, depth, transect, species) %>%
+  dplyr::summarise(total_count = n())
+```
+
+```{r}
+rpn_bleach_prev_total
+```
+
+```{r}
+n <- rpn_bleach_prev_total$total_count
+```
+
+```{r, include = FALSE}
+rpn_bleach_prev_PLOB <- rpn_bleach_prev.sum %>%  
+  filter(species == 'PLOB', bleach_cond == 'BL') %>%
+  group_by(location, depth, transect, bleach_cond, success_sum) 
+#%>%
+  #dplyr::summarise(total_count = n())
+```
+
+```{r}
+rpn_bleach_prev_PLOB
+```
+
+# Assume the response was drawn from a binomial distribution
+
+```{r}
+plob_bleach.glmer <- glmer(cbind(success_sum, failures) ~ location + depth + (1|transect), 
+                    family = binomial(link = "logit"), 
+                    data = rpn_bleach_prev_PLOB)
+```
+
+```{r}
+plob_bleach.glmer
+```
+
+```{r}
+summary(plob_bleach.glmer, corr = FALSE)
+```
+
+# Anakena Deep
+
+```{r}
+plogis(-0.450799 + 1.91736)
+```
+
+# Anakena Shallow
+
+```{r}
+plogis(-0.450799 + 1.335001)
+```
+
+```{r}
+predict(plob_bleach.glmer, type = "response", 
+        re.form = NA,
+        newdata = data.frame(location = c("ana", "ana", 
+                                          "man", "man",
+                                          "se",  "se"),
+                             
+                             depth = c("sh", "dp", 
+                                       "sh", "dp",
+                                       "sh", "dp")
+                             )
+)
+```
+
+```{r}
+newdata = data.frame(location = c("ana", "ana", 
+                                  "man", "man",
+                                  "se",  "se"),
+                             
+                             depth = c("sh", "dp", 
+                                       "sh", "dp",
+                                       "sh", "dp")
+                             )
+```
+
+```{r}
+newdata
+```
+
+# Odds of "success"
+
+# Anakena Deep
+
+```{r}
+exp(-0.450799 + 1.91736)
+```
+
+# Anakena Shallow
+
+```{r}
+exp(-0.450799 + 1.335001)
+```
+
+```{r}
+rpn_bleach_prev_PLOB
+```
+
+```{r}
+plob_bleach.glm <- glm(cbind(success_sum, failures) ~ location * depth, 
+                    family = binomial(link = "logit"), 
+                    data = rpn_bleach_prev_PLOB)
+```
+
+```{r}
+summary(plob_bleach.glm)
+```
+
+```{r}
+anova(plob_bleach.glm, test = 'Chisq')
+```
+
+```{r}
+plob_bleach.glm2 <- glm(cbind(success_sum, failures) ~ location + depth, 
+                    family = binomial(link = "logit"), 
+                    data = rpn_bleach_prev_PLOB)
+```
+
+```{r}
+summary(plob_bleach.glm2)
+```
+
+```{r}
+anova(plob_bleach.glm2, test = 'Chisq')
+```
+
+# ```{r}
+# dat <- within(dat, total <- success + failure)
+# dat.glmL <- glm(I(success/total) ~ x, data = dat, family = "binomial", weight = total)
+# ```
+
+```{r}
+plot(resid(plob_bleach.glm) ~ fitted(plob_bleach.glm))
+lines(lowess(resid(plob_bleach.glm) ~ fitted(plob_bleach.glm)))
+```
+
+```{r}
+dat.sim <- simulateResiduals(plob_bleach.glm)
+plotSimulatedResiduals(dat.sim)
+```
+
+```{r, include = FALSE}
+rpn_bleach_prev_POCI <- rpn_bleach_prev.sum %>%  
+  filter(species == 'POCI', bleach_cond == 'BL') %>%
+  group_by(location, depth, transect, bleach_cond, success_sum)
+#%>%
+  #dplyr::summarise(total_count = n())
+```
+
+```{r, include = FALSE}
+rpn_bleach_prev_POCI2 <- 
+  as.data.frame(rpn_bleach_prev_POCI) %>%
+    add_row(location = 'ana', depth = 'sh', transect = 'one', species = 'POCI', bleach_cond = 'BL', n = 0, success_sum = 0, failures = 0) %>%
+    add_row(location = 'ana', depth = 'sh', transect = 'two', species = 'POCI', bleach_cond = 'BL', n = 0, success_sum = 0, failures = 0) %>%
+  mutate_at(vars(location, depth, transect), factor)
+```
+
+```{r}
+rpn_bleach_prev_POCI2
+```
+
+# Assume the response was drawn from a binomial distribution
+
+```{r}
+poci_bleach.glmer <- glmer(cbind(success_sum, failures) ~ location + depth + (1|transect), 
+                    family = binomial(link = "logit"), 
+                    data = rpn_bleach_prev_POCI2)
+```
+
+```{r}
+summary(poci_bleach.glmer)
+```
+
+```{r}
+poci_bleach.glm <- glm(cbind(success_sum, failures) ~ location * depth, 
+                    family = binomial(link = "logit"), 
+                    data = rpn_bleach_prev_POCI2)
+```
+
+```{r}
+summary(poci_bleach.glm)
+```
+
+```{r}
+plob_bleach.glm <- glm(cbind(success_sum, failures) ~ (location * depth) + transect, 
+                    family = binomial(link = "logit"), 
+                    data = rpn_bleach_prev_PLOB)
+```
+
+```{r}
+plob_bleach.glm
+```
+
+```{r}
+anova(plob_bleach.glm, test = 'Chisq')
+```
+
+```{r}
+plob_bleach.glmer <- glmer(cbind(success_sum, failures) ~ location * depth + (1|transect), 
+                    family = binomial(link = "logit"), 
+                    data = rpn_bleach_prev_PLOB)
+```
+
+```{r}
+summary(plob_bleach.glmer)
+```
+
+```{r}
+plob_bleach.glmer2 <- glmer(cbind(success_sum, failures) ~ location + depth + (1|transect), 
+                    family = binomial(link = "logit"), 
+                    data = rpn_bleach_prev_PLOB)
+```
+
+```{r}
+summary(plob_bleach.glmer2)
+```
+
+# ```{r}
+# ggplot(Data, aes(x = PLANT, y = Weight, col = Rep)
+#        ) + 
+#   geom_jitter() + 
+#   geom_boxplot(alpha = 0.2) + 
+#   facet_wrap( ~ Rep)
+# ```
+
+```{r}
+predict(plob_bleach.glmer2, type = "response", 
+        re.form = NA,
+        newdata = data.frame(location = c("ana", "ana", 
+                                          "man", "man",
+                                          "se",  "se"),
+                             
+                             depth = c("sh", "dp", 
+                                       "sh", "dp",
+                                       "sh", "dp")
+                             )
+)
+```
+
+# Assume the response was drawn from a binomial distribution
+
+```{r}
+poci_bleach.glmer <- glmer(cbind(success_sum, failures) ~ location + depth + (1|transect), 
+                    family = binomial(link = "logit"), 
+                    data = rpn_bleach_prev_POCI)
+```
+
+```{r}
+summary(poci_bleach.glmer)
+```
+
+```{r}
+predict(poci_bleach.glmer, type = "response", 
+        re.form = NA,
+        newdata = data.frame(location = c("ana", "ana", 
+                                          "man", "man",
+                                          "se",  "se"),
+                             
+                             depth = c("sh", "dp", 
+                                       "sh", "dp",
+                                       "sh", "dp")
+                             )
+)
+```
+
+```{r}
+poci_bleach.glmer2 <- glmer(cbind(success_sum, failures) ~ location + depth + (1|transect), 
+                    family = binomial(link = "logit"), 
+                    data = rpn_bleach_prev_POCI2)
+```
+
+```{r}
+summary(poci_bleach.glmer2)
+```
+
+```{r}
+predict(poci_bleach.glmer2, type = "response", 
+        re.form = NA,
+        newdata = data.frame(
+          
+          location = c("ana", "ana", 
+                                          "man", "man",
+                                          "se",  "se"),
+                             
+                             depth = c("sh", "dp",
+                                       "sh", "dp",
+                                       "sh", "dp"
+                                       )
+  )
+)
+```
+
+############################################################################################################################# 
+
+```{r}
+rpn_bleach_prev.main <- 
+  read.csv("rpn_bleach_prev.main2.csv")
+```
+
+```{r}
+rpn_bleach_prev.main
+```
+
+# ```{r}
+# rpn_bleach_prev.main <-
+# rpn_bleach_prev.main %>%
+#   dplyr::select(-X) %>%
+#   dplyr::rename(successes = total_count)
+# ```
+
+```{r}
+rpn_bleach_prev.main %>%
+  dplyr::select(-X)
+```
+
+```{r}
+rpn_bleach_prev.plob <- 
+  rpn_bleach_prev.main %>%
+  filter(species == 'PLOB') %>%
+  mutate_at(vars(location, depth, transect), factor) %>%
+  dplyr::select(location, depth, transect, bleach, successes, failures) %>%
+  group_by(location, depth, transect)
+  
+```
+
+```{r}
+rpn_bleach_prev.plob
+```
+
+# ```{r}
+# plob_bleach.glmer <- glmer(cbind(successes, failures) ~ location + depth + bleach + (1|transect), 
+#                     family = binomial(link = "logit"), 
+#                     data = rpn_bleach_prev.plob)
+# ```
+
+```{r}
+summary(plob_bleach.glmer)
+```
+
+```{r}
+plob_bleach.glm <- glm(cbind(successes, failures) ~ location + depth + bleach, 
+                           # + (1|transect), 
+                    family = binomial(link = "logit"), 
+                    data = rpn_bleach_prev.plob)
+```
+
+```{r}
+summary(plob_bleach.glm)
+```
+
+```{r}
+plob_bleach.glm2 <- glm(cbind(successes, failures) ~ bleach, 
+                           # + (1|transect), 
+                    family = binomial(link = "logit"), 
+                    data = rpn_bleach_prev.plob)
+```
+
+```{r}
+summary(plob_bleach.glm2)
+```
+
+```{r}
+tab_model(plob_bleach.glm2)
+```
+
+```{r}
+rpn_bleach_prev.poci <- 
+  rpn_bleach_prev.main %>%
+  filter(species == 'POCI') %>%
+  mutate_at(vars(location, depth, transect), factor) %>%
+  dplyr::select(location, depth, transect, species, bleach, successes, failures) %>%
+  group_by(location, depth, transect)
+  
+```
+
+```{r}
+rpn_bleach_prev.poci
+```
+
+```{r}
+rpn_bleach_prev.poci <- 
+  rpn_bleach_prev.main %>%
+  filter(species == 'POCI') %>%
+  mutate_at(vars(location, depth, transect), factor) %>%
+  dplyr::select(location, depth, transect, species, bleach, successes, failures) %>%
+  group_by(location, depth, transect)
+```
+
+```{r}
+rpn_bleach_prev.poci2 <- 
+  rpn_bleach_prev.main %>%
+  filter(species == 'POCI') %>%
+  mutate_at(vars(location, depth, transect, species, bleach), factor) %>%
+  dplyr::select(location, depth, species, bleach, successes, failures) %>%
+  dplyr::group_by(location, depth, bleach) %>%
+  dplyr::summarise(across(c(successes, failures), sum, na.rm = TRUE)
+             )
+```
+
+```{r}
+rpn_bleach_prev.poci2
+```
+
+```{r}
+poci_bleach.glmer <- glmer(cbind(successes, failures) ~ location + depth + (1|bleach), 
+                    family = binomial(link = "logit"), 
+                    data = rpn_bleach_prev.poci2)
+```
+
+```{r}
+summary(poci_bleach.glmer)
+```
+
+```{r}
+tab_model(poci_bleach.glmer)
+```
+
+```{r}
+rpn_bleach_prev.poci3 <- 
+  rpn_bleach_prev.main %>%
+  filter(species == 'POCI') %>%
+  mutate_at(vars(location, depth, transect, species, bleach), factor) %>%
+  dplyr::select(location, depth, species, bleach, successes, failures) %>%
+  dplyr::group_by(location, depth, bleach) %>%
+  dplyr::summarise(across(c(successes, failures), sum, na.rm = TRUE)
+             ) %>%
+  pivot_wider(names_from = bleach, values_from = c(successes, failures))
+```
+
+```{r}
+rpn_bleach_prev.poci3
+```
+
+```{r}
+poci_BL.glm <- glm(cbind(successes_BL, failures_BL) ~ location * depth,
+                           #+ (1|transect), 
+                    family = binomial(link = logit),
+                    #(link = "logit"), 
+                    data = rpn_bleach_prev.poci3)
+```
+
+```{r}
+summary(poci_BL.glm)
+```
+
+```{r}
+Anova(poci_bleach.glm, type = 'III')
+```
+
+
+```{r}
+poci_H.glm <- glm(cbind(successes_H, failures_H) ~ location * depth,
+                           #+ (1|transect), 
+                    family = binomial(link = logit),
+                    #(link = "logit"), 
+                    data = rpn_bleach_prev.poci3)
+```
+
+```{r}
+summary(poci_H.glm)
+```
+
+
+
+#### https://www.rpubs.com/daharo_calpoly/502695
+
+```{r}
+rpn_bleach_prev.poci2$groups <- interaction(rpn_bleach_prev.poci2$location, rpn_bleach_prev.poci2$depth)
+```
+
+```{r}
+rpn_bleach_prev.poci2$groups
+```
+
+## Create a post-hoc model
+
+```{r}
+model_poci <- with(rpn_bleach_prev.poci2, glm(cbind(successes, failures) ~ groups, family = binomial))
+```
+
+## Determine the post-hoc comparisons of interest
+
+```{r}
+summary(glht(model_poci, 
+             linfct = mcp(groups =
+                     #Is the difference between these groups different from zero?
+                     c("(ana.sh) - (ana.dp) = 0",
+                       "(man.sh) - (man.dp) = 0",
+                       "(se.sh) - (se.dp) = 0",
+                       "(ana.sh) - (man.sh) = 0",
+                       "(ana.sh) - (man.dp) = 0",
+                       "(ana.sh) - (se.sh) = 0",
+                       "(ana.sh) - (se.dp) = 0",
+                       "(ana.dp) - (man.sh) = 0",
+                       "(ana.dp) - (man.dp) = 0",
+                       "(ana.dp) - (se.sh) = 0",
+                       "(ana.dp) - (se.dp) = 0",
+                       "(se.sh) - (man.sh) = 0",
+                       "(se.sh) - (man.dp) = 0",
+                       "(se.dp) - (man.sh) = 0",
+                       "(se.dp) - (man.dp) = 0"))),
+        test = adjusted("holm"))
+```
+
+```{r}
+rpn_bleach_prev.poci_h <- 
+  rpn_bleach_prev.main %>%
+  filter(species == 'POCI', bleach == 'H') %>%
+  mutate_at(vars(location, depth, transect, species, bleach), factor) %>%
+  dplyr::select(location, depth, species, bleach, successes, failures) %>%
+  dplyr::group_by(location, depth, bleach) %>%
+  dplyr::summarise(across(c(successes, failures), sum, na.rm = TRUE)
+             )
+```
+
+```{r}
+rpn_bleach_prev.poci_h
+```

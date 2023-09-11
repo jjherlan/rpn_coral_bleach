@@ -45,6 +45,20 @@ website:
         text: Code in your files
       - href: content/acknowledgements.qmd
         text: Acknowledgements
+      - href: content/bleaching.qmd
+        text: Bleaching
+      - href: content/bleaching2.qmd
+        text: Bleaching2
+      - href: content/bleaching_prev.qmd
+        text: Bleaching Prevalence
+      - href: content/bleaching_prev_main.qmd
+        text: Bleaching Prevalence Main
+      - href: content/bleaching_results_supp_material.qmd
+        text: Bleaching Results Supp Material
+      - href: content/bleaching_results_supp_material2.qmd
+        text: Bleaching Results Supp Material Two
+      - href: content/rpn_cover_bleach_results.qmd
+        text: RPN Cover Bleach Results
 
 format:
   html:

@@ -1,0 +1,426 @@
+---
+title: "rpn bleaching prev main"
+author: "jjh"
+editor: visual
+---
+
+```{r, include = FALSE}
+require(tidyverse)
+require(plyr)
+require(betareg)
+require(lmtest)
+require(glmmTMB)
+require(boot)
+require(emmeans)
+require(brms)
+require(mvtnorm)
+require(nlme)
+require(rstan)
+require(VGAM)
+require(Rmisc)
+require(car)
+require(multcomp)
+require(lme4)
+require(DHARMa)
+require(glmmTMB)
+require(sjPlot)
+require(lme4)
+library(readxl)
+require(lmerTest)
+require(colorspace)
+```
+
+```{r}
+rpn_bleach_prev_main <- read_excel("rpn_bleach_prev_main2.xlsx")
+```
+
+```{r}
+rpn_bleach_prev_main <-
+  dplyr::rename(rpn_bleach_prev_main, successes = total_count)
+```
+
+```{r}
+rpn_bleach_prev_main2 <-
+  rpn_bleach_prev_main %>%
+  filter(bleach == 'P' | bleach == 'PB' | bleach == 'H')
+```
+
+```{r}
+rpn_bleach_prev.plob <- 
+  rpn_bleach_prev_main2 %>%
+  filter(species == 'PLOB') %>%
+  mutate_at(vars(location, depth, transect), factor) %>%
+  dplyr::select(location, depth, transect, species, bleach, bleach_cond, n, successes, failures) %>%
+  group_by(location, depth, transect)
+```
+
+```{r}
+rpn_bleach_prev.plob
+```
+
+```{r}
+
+```
+
+```{r}
+plob_bleach.glmer_reduced <- glmer(cbind(successes, failures) ~ bleach + (1|location) + (1|location:depth) + (1|location:depth:transect) + (1|location:depth:transect:bleach), 
+                    family = binomial(link = "logit"), 
+                    data = rpn_bleach_prev.plob)
+```
+```{r}
+summary(plob_bleach.glmer_reduced)
+```
+
+```{r}
+rpn_plob.predict <- rpn_bleach_prev.plob %>% 
+  mutate(yhat = predict(plob_bleach.glmer_reduced, re.form = ~ (1|location:depth:transect:bleach) 
+                         ) 
+          )
+```
+
+```{r}
+ggplot(rpn_plob.predict, aes(x = bleach, y = successes/(successes + failures))) + 
+  geom_point() +
+  geom_line(aes(y = yhat, x = as.integer(bleach)), color='red') +
+  facet_grid(. ~ location:depth) +
+  ggtitle('Average With Location & Depth & Transect & Bleaching Offset')
+```
+
+```{r}
+plob_bleach_cond.glmer_reduced <- glmer(cbind(successes, failures) ~ bleach_cond + (1|location)  + (1|location:depth) + (1|location:depth:transect) + (1|location:depth:transect:bleach_cond), 
+                    family = binomial(link = "logit"), 
+                    data = rpn_bleach_prev.plob)
+
+#
+```
+
+<!-- ```{r} -->
+<!-- plob_bleach.glm <- glm(cbind(successes, failures) ~ location + depth + transect + bleach,  -->
+<!--                     family = binomial(link = "logit"),  -->
+<!--                     data = rpn_bleach_prev.plob) -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- summary(plob_bleach.glm) -->
+<!-- ``` -->
+
+
+```{r}
+plob_bleach.glmer_full <- glmer(cbind(successes, failures) ~ location + depth + transect + bleach + (1|location)  + (1|location:depth) + (1|location:depth:transect) + (1|location:depth:transect:bleach), 
+                    family = binomial(link = "logit"), 
+                    data = rpn_bleach_prev.plob)
+```
+
+```{r}
+summary(plob_bleach.glmer_full)
+```
+
+```{r}
+anova(plob_bleach.glmer_full, plob_bleach.glmer_reduced)
+```
+
+```{r}
+plob_location_dropped <- update(plob_bleach.glmer_full, . ~ . - location)
+```
+
+```{r}
+anova(plob_bleach.glmer_full, plob_location_dropped)
+```
+
+```{r}
+plob_depth_dropped <- update(plob_location_dropped, . ~ . - depth)
+```
+
+```{r}
+anova(plob_location_dropped, plob_depth_dropped)
+```
+
+```{r}
+plob_transect_dropped <- update(plob_depth_dropped, . ~ . - transect)
+```
+
+```{r}
+anova(plob_depth_dropped, plob_transect_dropped)
+```
+
+```{r}
+plob_bleach_dropped <- update(plob_transect_dropped, . ~ . - bleach)
+```
+
+```{r}
+anova(plob_transect_dropped, plob_bleach_dropped)
+```
+
+# Pocillopora
+
+```{r}
+rpn_bleach_prev_main <- read_excel("rpn_bleach_prev_main2.xlsx")
+```
+
+```{r}
+rpn_bleach_prev_main <-
+  dplyr::rename(rpn_bleach_prev_main, successes = total_count)
+```
+
+```{r}
+rpn_bleach_prev.poci <- 
+  rpn_bleach_prev_main %>%
+  filter(species == 'POCI') %>%
+  mutate_at(vars(location, depth, transect), factor) %>%
+  dplyr::select(location, depth, transect, species, bleach, bleach_cond, n, successes, failures) %>%
+  group_by(location, depth, transect)
+```
+
+```{r}
+rpn_bleach_prev.poci
+```
+
+```{r}
+poci_bleach.glmer_reduced <- glmer(cbind(successes, failures) ~ bleach + (1|location)  + (1|location:depth) + (1|location:depth:transect) + (1|location:depth:transect:bleach), 
+                    family = binomial(link = "logit"), 
+                    data = rpn_bleach_prev.poci)
+```
+
+```{r}
+poci_bleach.glmer_full <- glmer(cbind(successes, failures) ~ location + depth + transect + bleach + (1|location)  + (1|location:depth) + (1|location:depth:transect) + (1|location:depth:transect:bleach), 
+                    family = binomial(link = "logit"), 
+                    data = rpn_bleach_prev.poci)
+```
+
+```{r}
+anova(poci_bleach.glmer_full, poci_bleach.glmer_reduced)
+```
+
+```{r}
+poci_location_dropped <- update(poci_bleach.glmer_full, . ~ . - location)
+```
+
+```{r}
+anova(poci_bleach.glmer_full, poci_location_dropped)
+```
+
+```{r}
+poci_depth_dropped <- update(poci_location_dropped, . ~ . - depth)
+```
+
+```{r}
+anova(poci_location_dropped, poci_depth_dropped)
+```
+
+```{r}
+poci_transect_dropped <- update(poci_depth_dropped, . ~ . - transect)
+```
+
+```{r}
+anova(poci_depth_dropped, poci_transect_dropped)
+```
+
+```{r}
+poci_bleach_dropped <- update(poci_transect_dropped, . ~ . - bleach)
+```
+
+```{r}
+anova(poci_transect_dropped, poci_bleach_dropped)
+```
+
+```{r}
+summary(plob_bleach.glmer_full)
+```
+
+```{r}
+summary(poci_bleach.glmer_full)
+```
+
+```{r}
+summary(plob_bleach.glmer_reduced)
+```
+
+```{r}
+summary(poci_bleach.glmer_reduced)
+```
+
+```{r}
+rpn_bleach_prev_main %>%
+ggplot(aes(fill = bleach, y = success, x = location)) + 
+    geom_bar(position = "stack", stat = "identity") + 
+  ggtitle("Coral Bleaching")
+```
+
+```{r}
+rpn_bleach_prev_main
+```
+
+```{r}
+rpn_bleach_prev_main.barplot <-
+rpn_bleach_prev_main %>%
+  mutate_at(vars(location, depth, transect, species, bleach), factor) %>%
+  #dplyr::group_by(location, depth, bleach) %>%
+  dplyr::select(location, depth, species, bleach, n, successes, failures) %>%
+  dplyr::group_by(location, depth, species, bleach) %>%
+  dplyr::summarise(sum_successes = sum(successes),
+                   sum_failures = sum(failures),
+                   ratio = (sum_successes / sum_failures),
+                   sum_n = sum(n),
+                   prev = (sum_successes / sum_n)
+                   
+             )
+```
+
+```{r}
+rpn_bleach_prev_main.barplot
+```
+
+```{r}
+rpn_bleach_prev_main.barplot %>%
+  dplyr::summarise(across(c(sum_successes), sum, na.rm = TRUE)
+             )
+```
+
+```{r}
+coral_labels <- c('PLOB' = "Porites", 
+                  'POCI' = "Pocillopora"
+)
+```
+
+```{r}
+coral_labels
+```
+
+```{r}
+x_labels = c('ana' = "North", 
+             'man' = "West", 
+             'se' = "Southeast")
+```
+
+```{r}
+x_labels
+```
+
+```{r}
+depth_labels = c('sh' = "8 m", 'dp' = "15 m")
+```
+
+```{r}
+depth_labels
+```
+
+```{r}
+bleach_labels = c("Bleached", 
+                  "Partially bleached", 
+                  "Pale", 
+                  "Not bleached")
+```
+
+```{r}
+bleach_labels = c('BL' = "Bleached", 
+                  'PB' = "Partially bleached", 
+                  'P' = "Pale", 
+                  'H' = "Not bleached")
+```
+
+```{r}
+bleach_labels
+```
+
+```{r}
+hcl_palettes(plot = TRUE)
+```
+
+```{r}
+# New facet label names for dose variable
+depth.labs <- c('sh', 'dp')
+names(depth.labs) <- c('Shallow', 'Deep')
+```
+
+```{r}
+# New facet label names for supp variable
+species.labs <- c('PLOB', 'POCI')
+names(species.labs) <- c('Porites', 'Pocillopora')
+```
+
+```{r}
+rpn_bleach_prev_main.barplot$species2 <- factor(rpn_bleach_prev_main.barplot$species, labels = c('Porites', 'Pocillopora'))
+```
+
+```{r}
+rpn_bleach_prev_main.barplot$depth2 <- factor(rpn_bleach_prev_main.barplot$depth, labels = c('Shallow', 'Deep'))
+```
+
+```{r}
+rpn_bleach.ggbarplot <-
+  rpn_bleach_prev_main.barplot %>%
+#  mutate(across(species, factor, levels = c('PLOB', 'POCI')),
+#       across(depth, factor, levels = c('sh', 'dp'))) %>%
+ ggplot(aes(x = location, y = prev, fill = bleach)) +   
+  geom_bar(position = "stack", stat = "identity", width = 0.75, color = "black", linewidth = 0.50, alpha = 0.6) +
+  scale_x_discrete(expand = c(0, 1), labels = x_labels) + 
+  scale_y_continuous(expression(paste("Bleaching Prevalence (%)")), limits = c(0, 1.0), 
+                     labels = function(x) paste0(x*100)) +
+  scale_fill_manual(values=c("#FFFFFF", "#6699FF", "#0000CC", "#000066"), breaks = c('BL', 'PB', 'P', 'H'), 
+                                  labels=c('Bleached', 'Partially\n Bleached', 'Pale', 'Not bleached')) +
+#  facet_grid(factor(species, levels = c('PLOB', 'POCI')) ~ factor(depth, levels = c('sh', 'dp'))) +
+  facet_grid(factor(depth2, levels = c('Shallow', 'Deep')) ~ factor(species2, levels = c('Porites', 'Pocillopora')))+
+  labs(x = NULL) +
+#  ylab('Prevalence (%)') +
+  theme(strip.text = element_text(size = 10, color = "black", hjust = 0.50),
+        strip.background = element_rect(fill = "#FFFFFF", color = NA),    
+        panel.background = element_rect(fill = "#FFFFFF", color = NA),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.grid.major.y = element_line(color = "#b2b2b2"),
+        panel.spacing.x = unit(1, "cm"),
+        panel.spacing.y = unit(0.5, "cm"),
+        panel.spacing = unit(1, "lines"),
+        axis.ticks = element_blank(),
+        legend.position = 'right',
+        plot.title = element_text(size = 11),
+        axis.text.y = element_text(size = 10),
+        axis.text.x = element_text(size = 10),
+        axis.title.y = element_text(size = 12),
+        legend.title = element_blank())
+```
+
+##```{r}
+#factor(bleach, bleach_labels)
+#```
+
+#```{r}
+#factor(depth, label_names)
+#```
+
+  <!--  + -->
+  <!-- #scale_fill_manual(values = c("#FFC74E", "#82A5C0", "#ABC178")) + # -->
+
+  <!-- #ggtitle(expression(paste(italic(" Porites "), "spp."))) + -->
+  <!-- #geom_text(aes(label = cld, y = upper.ci), vjust = -0.5, size = 10) + -->
+  <!-- #scale_y_log10(expression(paste("Colony Size (", cm^2, ")"), limits = c(0, 100000))) + -->
+  
+
+```{r}
+rpn_bleach.ggbarplot
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
