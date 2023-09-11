@@ -15,7 +15,7 @@ jobs:
         uses: r-lib/actions/setup-r@v2
 
       - name: Install packages (needed for Rmd)
-        run: Rscript -e 'install.packages(c("rmarkdown", "knitr", "jsonlite"))'
+        run: Rscript -e 'install.packages(c("leaflet", "rmarkdown", "knitr", "jsonlite", "revealjs", "knitr", "tidyverse", "plyr", "betareg", "lmtest", "glmmTMB", "boot", "emmeans", "brms", "mvtnorm", "nlme", "rstan", "VGAM", "car", "lme4", "Rmisc", "readr", "multcomp", "ggthemes", "multcompView", "xtable", "tidyr", "ordinal", "mosaic", "arm", "cowplot", "qqtest", "spatstat", "rgdal", "sf", "stars", "terra", "magick", "unmarked", "AHMbook", "png", "raster", "landscapemetrics", "gapminder", "wesanderson", "ggridges", "psych", "DHARMa", "ggsignif", "kableExtra", "modelsummary", "gt", "flextable", "emmeans", "MASS", "lubridate", "gtsummary"))'
 
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
