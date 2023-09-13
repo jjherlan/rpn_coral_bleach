@@ -48,71 +48,126 @@ rpn_bleach_prev_sum
 ```
 
 <!-- ```{r} -->
+
 <!-- n <- c( -->
+
 <!--   14, 14, 14,     #3 -->
+
 <!--   4,  4,  4,      #6 -->
+
 <!--   18, 18, 18,     #9 -->
+
 <!--   2, 2,           #11 -->
+
 <!--   33, 33, 33,     #14 -->
+
 <!--   32, 32, 32,     #17 -->
+
 <!--   26, 26, 26,     #20 -->
+
 <!--   11, 11, 11,     #23 -->
+
 <!--   13, 13, 13,     #26 -->
+
 <!--   13, 13, 13,     #29 -->
+
 <!--   24, 24, 24,     #32 -->
+
 <!--   15, 15, 15,     #35 POCI -->
+
 <!--   11, 11,         #37 PLOB -->
+
 <!--   16, 16, 16,     #40 POCI -->
+
 <!--   16, 16, 16,     #43 PLOB -->
+
 <!--   56, 56, 56, 56, #47 POCI -->
+
 <!--   15, 15,         #49 PLOB -->
+
 <!--   59, 59, 59, 59, #53 POCI -->
+
 <!--   12, 12,         #55 PLOB -->
+
 <!--   74, 74, 74,     #58 POCI -->
+
 <!--   5, 5,           #60 PLOB -->
+
 <!--   60, 60, 60, 60  #64 POCI -->
+
 <!-- ) -->
+
 <!-- ``` -->
 
 <!-- ```{r} -->
+
 <!-- rpn_bleach_prev.main <-  -->
+
 <!--   rpn_bleach_prev_sum %>% -->
+
 <!--   add_column(n = n) %>%   -->
+
 <!--   mutate( -->
+
 <!--   cover = total_count/total_points, -->
+
 <!--   failures = n - total_count -->
+
 <!--     ) %>% -->
+
 <!--   mutate(bleach_cond = case_when(bleach == 'H' ~ 'NB', -->
+
 <!--                                  bleach == 'P' ~ 'BL', -->
+
 <!--                                  bleach == 'PB' ~ 'BL', -->
+
 <!--                                  bleach == 'BL' ~ 'BL') -->
+
 <!--   ) -->
+
 <!-- ``` -->
 
 <!-- ```{r} -->
+
 <!-- rpn_bleach_prev.main2 <-  -->
+
 <!--   as.data.frame(rpn_bleach_prev.main) %>% -->
+
 <!--   add_row(location = 'ana', depth = 'dp', transect = 'one', species = 'PLOB', bleach = 'BL', total_count = 0, n = 14, failures = 0, bleach_cond = 'BL', .after = 3) %>% -->
+
 <!--   add_row(location = 'ana', depth = 'dp', transect = 'one', species = 'POCI', bleach = 'H', total_count = 0, n = 4, failures = 0, bleach_cond = 'NB', .after = 4) %>% -->
+
 <!--   add_row(location = 'ana', depth = 'dp', transect = 'two', species = 'PLOB', bleach = 'BL', total_count = 0, n = 18, failures = 0, bleach_cond = 'BL', .after =11) %>% -->
+
 <!--   add_row(location = 'ana', depth = 'dp', transect = 'two', species = 'POCI', bleach = 'BL', total_count = 0, n = 2, failures = 0, bleach_cond = 'BL', .after = 12) %>% -->
+
 <!--   add_row(location = 'ana', depth = 'dp', transect = 'two', species = 'POCI', bleach = 'H', total_count = 0, n = 2, failures = 0, bleach_cond = 'NB', .after = 13) %>% -->
+
 <!--   add_row(location = 'ana', depth = 'sh', transect = 'one', species = 'PLOB', bleach = 'BL', total_count = 0, n = 33, failures = 0, bleach_cond = 'BL', .after = 19) %>% -->
+
 <!--   add_row(location = 'ana', depth = 'sh', transect = 'two', species = 'PLOB', bleach = 'BL', total_count = 0, n = 32, failures = 0, bleach_cond = 'BL', .after = 20) %>% -->
+
 <!--   add_row(location = 'man', depth = 'dp', transect = 'one', species = 'PLOB', bleach = 'BL', total_count = 0, n = 26, failures = 0, bleach_cond = 'BL', .after = 24) %>% -->
+
 <!--   add_row(location = 'man', depth = 'dp', transect = 'one', species = 'POCI', bleach = 'PB', total_count = 0, n = 11, failures = 0, bleach_cond = 'BL', .after = 31) %>% -->
+
 <!--   add_row(location = 'man', depth = 'dp', transect = 'two', species = 'PLOB', bleach = 'BL', total_count = 0, n = 13, failures = 0, bleach_cond = 'BL', .after = 32) %>% -->
+
 <!--   add_row(location = 'man', depth = 'dp', transect = 'two', species = 'POCI', bleach = 'BL', total_count = 0, n = 13, failures = 0, bleach_cond = 'BL', .after = 36) %>% -->
+
 <!--   add_row(location = 'man', depth = 'sh', transect = 'one', species = 'PLOB', bleach = 'BL', total_count = 0, n = 24, failures = 0, bleach_cond = 'BL', .after = 40) %>% -->
+
 <!--   add_row(location = 'man', depth = 'sh', transect = 'one', species = 'POCI', bleach = 'BL', total_count = 0, n = 15, failures = 0, bleach_cond = 'BL', .after = 47) %>% -->
+
 <!--   add_row(location = 'man', depth = 'sh', transect = 'two', species = 'PLOB', bleach = 'BL', total_count = 0, n = 11, failures = 0, bleach_cond = 'BL', .after = 48) %>% -->
+
 <!--   add_row(location = 'man', depth = 'sh', transect = 'two', species = 'PLOB', bleach = 'BL', total_count = 0, n = 11, failures = 0, bleach_cond = 'BL', .after = 49) %>% -->
+
 <!--   add_row(location = 'se', depth = 'dp', transect = 'two', species = 'PLOB', bleach = 'BL', total_count = 0, n = 16, failures = 0, bleach_cond = 'BL', .after = 56) -->
+
 <!-- ``` -->
 
-# ```{r}
-# rpn_bleach_prev.main2
-# ```
+# `{r} # rpn_bleach_prev.main2 #`
 
 ```{r}
 write.csv(rpn_bleach_prev.main2, "rpn_bleach_prev.main2.csv")
@@ -283,10 +338,7 @@ summary(plob_bleach.glm2)
 anova(plob_bleach.glm2, test = 'Chisq')
 ```
 
-# ```{r}
-# dat <- within(dat, total <- success + failure)
-# dat.glmL <- glm(I(success/total) ~ x, data = dat, family = "binomial", weight = total)
-# ```
+# `{r} # dat <- within(dat, total <- success + failure) # dat.glmL <- glm(I(success/total) ~ x, data = dat, family = "binomial", weight = total) #`
 
 ```{r}
 plot(resid(plob_bleach.glm) ~ fitted(plob_bleach.glm))
@@ -374,13 +426,7 @@ plob_bleach.glmer2 <- glmer(cbind(success_sum, failures) ~ location + depth + (1
 summary(plob_bleach.glmer2)
 ```
 
-# ```{r}
-# ggplot(Data, aes(x = PLANT, y = Weight, col = Rep)
-#        ) + 
-#   geom_jitter() + 
-#   geom_boxplot(alpha = 0.2) + 
-#   facet_wrap( ~ Rep)
-# ```
+# `{r} # ggplot(Data, aes(x = PLANT, y = Weight, col = Rep) #        ) +  #   geom_jitter() +  #   geom_boxplot(alpha = 0.2) +  #   facet_wrap( ~ Rep) #`
 
 ```{r}
 predict(plob_bleach.glmer2, type = "response", 
@@ -460,12 +506,7 @@ rpn_bleach_prev.main <-
 rpn_bleach_prev.main
 ```
 
-# ```{r}
-# rpn_bleach_prev.main <-
-# rpn_bleach_prev.main %>%
-#   dplyr::select(-X) %>%
-#   dplyr::rename(successes = total_count)
-# ```
+# `{r} # rpn_bleach_prev.main <- # rpn_bleach_prev.main %>% #   dplyr::select(-X) %>% #   dplyr::rename(successes = total_count) #`
 
 ```{r}
 rpn_bleach_prev.main %>%
@@ -486,11 +527,7 @@ rpn_bleach_prev.plob <-
 rpn_bleach_prev.plob
 ```
 
-# ```{r}
-# plob_bleach.glmer <- glmer(cbind(successes, failures) ~ location + depth + bleach + (1|transect), 
-#                     family = binomial(link = "logit"), 
-#                     data = rpn_bleach_prev.plob)
-# ```
+# `{r} # plob_bleach.glmer <- glmer(cbind(successes, failures) ~ location + depth + bleach + (1|transect),  #                     family = binomial(link = "logit"),  #                     data = rpn_bleach_prev.plob) #`
 
 ```{r}
 summary(plob_bleach.glmer)
@@ -606,7 +643,6 @@ summary(poci_BL.glm)
 Anova(poci_bleach.glm, type = 'III')
 ```
 
-
 ```{r}
 poci_H.glm <- glm(cbind(successes_H, failures_H) ~ location * depth,
                            #+ (1|transect), 
@@ -618,8 +654,6 @@ poci_H.glm <- glm(cbind(successes_H, failures_H) ~ location * depth,
 ```{r}
 summary(poci_H.glm)
 ```
-
-
 
 #### https://www.rpubs.com/daharo_calpoly/502695
 

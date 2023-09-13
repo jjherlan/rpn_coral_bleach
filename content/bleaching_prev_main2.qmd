@@ -67,6 +67,7 @@ plob_bleach.glmer_reduced <- glmer(cbind(successes, failures) ~ bleach + (1|loca
                     family = binomial(link = "logit"), 
                     data = rpn_bleach_prev.plob)
 ```
+
 ```{r}
 summary(plob_bleach.glmer_reduced)
 ```
@@ -95,15 +96,20 @@ plob_bleach_cond.glmer_reduced <- glmer(cbind(successes, failures) ~ bleach_cond
 ```
 
 <!-- ```{r} -->
+
 <!-- plob_bleach.glm <- glm(cbind(successes, failures) ~ location + depth + transect + bleach,  -->
+
 <!--                     family = binomial(link = "logit"),  -->
+
 <!--                     data = rpn_bleach_prev.plob) -->
+
 <!-- ``` -->
 
 <!-- ```{r} -->
-<!-- summary(plob_bleach.glm) -->
-<!-- ``` -->
 
+<!-- summary(plob_bleach.glm) -->
+
+<!-- ``` -->
 
 ```{r}
 plob_bleach.glmer_full <- glmer(cbind(successes, failures) ~ location + depth + transect + bleach + (1|location)  + (1|location:depth) + (1|location:depth:transect) + (1|location:depth:transect:bleach), 
@@ -381,46 +387,14 @@ rpn_bleach.ggbarplot <-
         legend.title = element_blank())
 ```
 
-##```{r}
-#factor(bleach, bleach_labels)
-#```
+\##`{r} #factor(bleach, bleach_labels) #`
 
-#```{r}
-#factor(depth, label_names)
-#```
+\#`{r} #factor(depth, label_names) #`
 
-  <!--  + -->
-  <!-- #scale_fill_manual(values = c("#FFC74E", "#82A5C0", "#ABC178")) + # -->
+<!--  + --> <!-- #scale_fill_manual(values = c("#FFC74E", "#82A5C0", "#ABC178")) + # -->
 
-  <!-- #ggtitle(expression(paste(italic(" Porites "), "spp."))) + -->
-  <!-- #geom_text(aes(label = cld, y = upper.ci), vjust = -0.5, size = 10) + -->
-  <!-- #scale_y_log10(expression(paste("Colony Size (", cm^2, ")"), limits = c(0, 100000))) + -->
-  
+<!-- #ggtitle(expression(paste(italic(" Porites "), "spp."))) + --> <!-- #geom_text(aes(label = cld, y = upper.ci), vjust = -0.5, size = 10) + --> <!-- #scale_y_log10(expression(paste("Colony Size (", cm^2, ")"), limits = c(0, 100000))) + -->
 
 ```{r}
 rpn_bleach.ggbarplot
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -28,7 +28,6 @@ library(readxl)
 require(lmerTest)
 ```
 
-
 ```{r}
 rpn_bleach_prev_main <- read_excel("rpn_bleach_prev_main2.xlsx")
 ```
@@ -37,10 +36,7 @@ rpn_bleach_prev_main <- read_excel("rpn_bleach_prev_main2.xlsx")
 rpn_bleach_prev_main
 ```
 
-# ```{r}
-# rpn_bleach_prev.main %>%
-#   dplyr::select(-X)
-# ```
+# `{r} # rpn_bleach_prev.main %>% #   dplyr::select(-X) #`
 
 ```{r}
 rpn_bleach_prev.plob <- 
@@ -56,15 +52,9 @@ rpn_bleach_prev.plob <-
 rpn_bleach_prev.plob
 ```
 
-# ```{r}
-# plob_bleach.glmer <- glmer(cbind(successes, failures) ~ location + depth + bleach + (1|transect), 
-#                     family = binomial(link = "logit"), 
-#                     data = rpn_bleach_prev.plob)
-# ```
+# `{r} # plob_bleach.glmer <- glmer(cbind(successes, failures) ~ location + depth + bleach + (1|transect),  #                     family = binomial(link = "logit"),  #                     data = rpn_bleach_prev.plob) #`
 
-# ```{r}
-# summary(plob_bleach.glmer)
-# ```
+# `{r} # summary(plob_bleach.glmer) #`
 
 ```{r}
 plob_bleach.glm <- glm(cbind(successes, failures) ~ location + depth + bleach, 
@@ -88,11 +78,9 @@ plob_bleach.glmer <- glmer(cbind(successes, failures) ~ bleach + depth +
 summary(plob_bleach.glmer)
 ```
 
-
 ```{r}
 ranef(plob_bleach.glmer)
 ```
-
 
 ```{r}
 plob_bleach.glm2 <- glm(cbind(successes, failures) ~ bleach, 
@@ -276,7 +264,6 @@ poci_bleach.glmer_full <- glmer(cbind(successes, failures) ~ location + depth + 
                     data = rpn_bleach_prev.poci)
 ```
 
-
 ```{r}
 anova(poci_bleach.glmer, poci_bleach.glmer2)
 ```
@@ -297,7 +284,6 @@ ggplot(eggs, aes(x = bleach, y = successes/(successes + failures))) +
   facet_grid(. ~ location:depth) +
   ggtitle('Average Value Only')
 ```
-
 
 ```{r}
 eggs2 <- rpn_bleach_prev.poci %>% 
@@ -367,7 +353,6 @@ summary(poci_bleach.glmer)[['varcor']]
 anova(poci_bleach.glmer)
 ```
 
-
 ```{r}
 rpn_bleach_prev.poci
 ```
@@ -407,7 +392,6 @@ summary(poci_BL.glm)
 ```{r}
 Anova(poci_bleach.glm, type = 'III')
 ```
-
 
 ```{r}
 poci_H.glm <- glm(cbind(successes_H, failures_H) ~ location * depth,
