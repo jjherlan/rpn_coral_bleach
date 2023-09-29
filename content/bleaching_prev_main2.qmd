@@ -391,9 +391,15 @@ rpn_bleach.ggbarplot <-
 
 \#`{r} #factor(depth, label_names) #`
 
-<!--  + --> <!-- #scale_fill_manual(values = c("#FFC74E", "#82A5C0", "#ABC178")) + # -->
+<!--  + -->
 
-<!-- #ggtitle(expression(paste(italic(" Porites "), "spp."))) + --> <!-- #geom_text(aes(label = cld, y = upper.ci), vjust = -0.5, size = 10) + --> <!-- #scale_y_log10(expression(paste("Colony Size (", cm^2, ")"), limits = c(0, 100000))) + -->
+<!-- #scale_fill_manual(values = c("#FFC74E", "#82A5C0", "#ABC178")) + # -->
+
+<!-- #ggtitle(expression(paste(italic(" Porites "), "spp."))) + -->
+
+<!-- #geom_text(aes(label = cld, y = upper.ci), vjust = -0.5, size = 10) + -->
+
+<!-- #scale_y_log10(expression(paste("Colony Size (", cm^2, ")"), limits = c(0, 100000))) + -->
 
 ```{r}
 rpn_bleach.ggbarplot
